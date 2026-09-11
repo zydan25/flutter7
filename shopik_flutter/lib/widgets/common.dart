@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+export 'dart:async' show unawaited;
+export 'heads_up_notification.dart';
 
 class AppColors {
   static const burgundy = Color(0xFF8B1D3B);
@@ -11,13 +13,6 @@ class AppColors {
   static const sky = Color(0xFF0284C7);
   static const navy = Color(0xFF1E293B);
   static const rose = Color(0xFFE11D48);
-}
-
-/// Fire-and-forget helper used by UI refreshes where the caller intentionally
-/// does not need to await the Future. Errors are consumed so they do not create
-/// an unhandled asynchronous error.
-void unawaited(Future<void> future) {
-  future.catchError((_) {});
 }
 
 String money(num? value, [String? currency]) {
