@@ -13,6 +13,13 @@ class AppColors {
   static const rose = Color(0xFFE11D48);
 }
 
+/// Fire-and-forget helper used by UI refreshes where the caller intentionally
+/// does not need to await the Future. Errors are consumed so they do not create
+/// an unhandled asynchronous error.
+void unawaited(Future<void> future) {
+  future.catchError((_) {});
+}
+
 String money(num? value, [String? currency]) {
   if (value == null) return '0 ${currency ?? "ر.ي"}';
   final isInt = value == value.roundToDouble();
