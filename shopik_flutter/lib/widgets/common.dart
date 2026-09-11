@@ -1,6 +1,20 @@
 import 'package:flutter/material.dart';
+import '../core/app_controller.dart';
+import '../models/models.dart';
 export 'dart:async' show unawaited;
 export 'heads_up_notification.dart';
+
+/// Compatibility getters used by legacy/new screens while the controller
+/// keeps `walletBalance` as the canonical wallet field.
+extension AppControllerCompat on AppController {
+  num get balance => walletBalance;
+}
+
+/// Compatibility profile fields used by account-edit UI.
+extension UserProfileCompat on UserProfile {
+  String get city => governorate;
+  String get email => '';
+}
 
 class AppColors {
   static const burgundy = Color(0xFF8B1D3B);
@@ -31,14 +45,10 @@ String _formatThousands(String numStr) {
   final buffer = StringBuffer();
   final len = integerPart.length;
   for (int i = 0; i < len; i++) {
-    if (i > 0 && (len - i) % 3 == 0) {
-      buffer.write(',');
-    }
+    if (i > 0 && (len - i) % 3 == 0) buffer.write(',');
     buffer.write(integerPart[i]);
   }
-  if (parts.length > 1) {
-    buffer.write('.${parts[1]}');
-  }
+  if (parts.length > 1) buffer.write('.${parts[1]}');
   return buffer.toString();
 }
 
@@ -53,10 +63,7 @@ void showAppToast(BuildContext context, String message, {bool isError = false, b
   ScaffoldMessenger.of(context).hideCurrentSnackBar();
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
-      content: Text(
-        message,
-        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-      ),
+      content: Text(message, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
       backgroundColor: isError
           ? const Color(0xFFDC2626)
           : (isSuccess ? const Color(0xFF059669) : const Color(0xFF0F172A)),
