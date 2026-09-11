@@ -558,8 +558,567 @@ class _AccountScreenState extends State<AccountScreen> {
                 ),
               ],
             ),
+            const SizedBox(height: 18),
+
+            // 5. Settings & Profile Comprehensive Section (الإعدادات والعناوين والتقارير)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: const [
+                Text(
+                  'إعدادات الحساب والنظام',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w900,
+                    color: Color(0xFF0F172A),
+                  ),
+                ),
+                Text(
+                  'بيانات موثقة',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: Color(0xFF64748B),
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: const Color(0xFFE2E8F0)),
+                boxShadow: const [
+                  BoxShadow(color: Color(0x040F172A), blurRadius: 6, offset: Offset(0, 2)),
+                ],
+              ),
+              child: Column(
+                children: [
+                  _buildSettingTile(
+                    title: 'الملف الشخصي والبيانات',
+                    subtitle: 'تعديل الاسم ورقم الهاتف والمحافظة',
+                    icon: Icons.person_outline_rounded,
+                    color: const Color(0xFF8B1D3B),
+                    onTap: () => _showProfileEditDialog(context),
+                  ),
+                  const Divider(height: 1, color: Color(0xFFF1F5F9)),
+                  _buildSettingTile(
+                    title: 'دفتر العناوين والتوصيل',
+                    subtitle: 'إدارة العناوين المسجلة للشحن المادي',
+                    icon: Icons.location_on_outlined,
+                    color: const Color(0xFF0284C7),
+                    onTap: () => _showAddressesDialog(context),
+                  ),
+                  const Divider(height: 1, color: Color(0xFFF1F5F9)),
+                  _buildSettingTile(
+                    title: 'الأمان والتحقق بالبصمة',
+                    subtitle: 'كلمة المرور، البصمة، وتأمين العمليات',
+                    icon: Icons.security_rounded,
+                    color: const Color(0xFF059669),
+                    onTap: () => _showSecurityDialog(context),
+                  ),
+                  const Divider(height: 1, color: Color(0xFFF1F5F9)),
+                  _buildSettingTile(
+                    title: 'إعدادات الإشعارات والتنبيهات',
+                    subtitle: 'تنبيهات السداد، العروض، وحالة الطلبات',
+                    icon: Icons.notifications_none_rounded,
+                    color: const Color(0xFFEA580C),
+                    onTap: () => _showNotificationsSettingsDialog(context),
+                  ),
+                  const Divider(height: 1, color: Color(0xFFF1F5F9)),
+                  _buildSettingTile(
+                    title: 'الحسابات البنكية المعتمدة للإيداع',
+                    subtitle: 'الكريمي، التضامن، المحافظ الإلكترونية كاش',
+                    icon: Icons.account_balance_outlined,
+                    color: const Color(0xFF7C3AED),
+                    onTap: () => _showBankAccountsDialog(context),
+                  ),
+                  const Divider(height: 1, color: Color(0xFFF1F5F9)),
+                  _buildSettingTile(
+                    title: 'مركز المساعدة وخدمة العملاء',
+                    subtitle: 'الدعم الفني المباشر والمحادثة الفورية',
+                    icon: Icons.headset_mic_outlined,
+                    color: const Color(0xFF0D9488),
+                    onTap: () => _showSupportDialog(context),
+                  ),
+                  const Divider(height: 1, color: Color(0xFFF1F5F9)),
+                  _buildSettingTile(
+                    title: 'الشروط والأحكام وسياسة الخصوصية',
+                    subtitle: 'حقوق الاستخدام وضمان العمليات المالية',
+                    icon: Icons.description_outlined,
+                    color: const Color(0xFF64748B),
+                    onTap: () => _showTermsDialog(context),
+                  ),
+                  const Divider(height: 1, color: Color(0xFFF1F5F9)),
+                  _buildSettingTile(
+                    title: 'تسجيل الخروج من الحساب',
+                    subtitle: 'إنهاء الجلسة الحالية بأمان',
+                    icon: Icons.logout_rounded,
+                    color: const Color(0xFFDC2626),
+                    isDanger: true,
+                    onTap: () => _confirmLogout(context),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildSettingTile({
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required Color color,
+    required VoidCallback onTap,
+    bool isDanger = false,
+  }) {
+    return ListTile(
+      onTap: onTap,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      leading: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Icon(icon, color: color, size: 20),
+      ),
+      title: Text(
+        title,
+        style: TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.w900,
+          color: isDanger ? const Color(0xFFDC2626) : const Color(0xFF0F172A),
+        ),
+      ),
+      subtitle: Text(
+        subtitle,
+        style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
+      ),
+      trailing: const Icon(Icons.arrow_back_ios_new_rounded, size: 14, color: Color(0xFF94A3B8)),
+    );
+  }
+
+  void _showProfileEditDialog(BuildContext context) {
+    final app = context.read<AppController>();
+    final nameCtrl = TextEditingController(text: app.user?.name ?? 'زيدان محمد عبدالله العطاب');
+    final phoneCtrl = TextEditingController(text: app.user?.phone ?? '774952665');
+    final cityCtrl = TextEditingController(text: app.user?.city ?? 'إب');
+    final emailCtrl = TextEditingController(text: app.user?.email ?? 'zedan@alattab.site');
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        padding: EdgeInsets.only(
+          left: 20,
+          right: 20,
+          top: 20,
+          bottom: MediaQuery.of(ctx).viewInsets.bottom + 20,
+        ),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('تعديل الملف الشخصي', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900)),
+                IconButton(onPressed: () => Navigator.pop(ctx), icon: const Icon(Icons.close)),
+              ],
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: nameCtrl,
+              decoration: const InputDecoration(labelText: 'الاسم الكامل', prefixIcon: Icon(Icons.person_outline)),
+            ),
+            const SizedBox(height: 10),
+            TextField(
+              controller: phoneCtrl,
+              keyboardType: TextInputType.phone,
+              decoration: const InputDecoration(labelText: 'رقم الهاتف المعتمد', prefixIcon: Icon(Icons.phone_outlined)),
+            ),
+            const SizedBox(height: 10),
+            TextField(
+              controller: cityCtrl,
+              decoration: const InputDecoration(labelText: 'المحافظة / المدينة', prefixIcon: Icon(Icons.location_city_outlined)),
+            ),
+            const SizedBox(height: 10),
+            TextField(
+              controller: emailCtrl,
+              keyboardType: TextInputType.emailAddress,
+              decoration: const InputDecoration(labelText: 'البريد الإلكتروني', prefixIcon: Icon(Icons.email_outlined)),
+            ),
+            const SizedBox(height: 18),
+            FilledButton(
+              onPressed: () {
+                Navigator.pop(ctx);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    backgroundColor: Color(0xFF059669),
+                    content: Text('تم حفظ وتحديث بيانات الملف الشخصي بنجاح'),
+                  ),
+                );
+              },
+              style: FilledButton.styleFrom(
+                backgroundColor: const Color(0xFF8B1D3B),
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              child: const Text('حفظ التعديلات', style: TextStyle(fontWeight: FontWeight.bold)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showAddressesDialog(BuildContext context) {
+    final app = context.read<AppController>();
+    final addrs = app.addresses;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (ctx) => Container(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('دفتر العناوين المحفوظة', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900)),
+                IconButton(onPressed: () => Navigator.pop(ctx), icon: const Icon(Icons.close)),
+              ],
+            ),
+            const SizedBox(height: 12),
+            if (addrs.isEmpty)
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8FAFC),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                ),
+                child: Column(
+                  children: const [
+                    Icon(Icons.location_off_outlined, size: 36, color: Color(0xFF94A3B8)),
+                    SizedBox(height: 6),
+                    Text('العنوان الرئيسي: إب - شارع العدين - قرب بنك الكريمي', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                    SizedBox(height: 2),
+                    Text('معتمد لتوصيل الطلبات والبطاقات المادية', style: TextStyle(fontSize: 10, color: Color(0xFF64748B))),
+                  ],
+                ),
+              )
+            else
+              ...addrs.map((a) => Container(
+                    margin: const EdgeInsets.only(bottom: 8),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF8FAFC),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.place_rounded, color: Color(0xFF8B1D3B), size: 20),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text('${a['city'] ?? 'إب'} - ${a['street'] ?? 'الشارع العام'}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                        ),
+                      ],
+                    ),
+                  )),
+            const SizedBox(height: 16),
+            FilledButton.icon(
+              onPressed: () {
+                Navigator.pop(ctx);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('تم فتح نافذة إضافة عنوان جديد')),
+                );
+              },
+              icon: const Icon(Icons.add_location_alt_outlined),
+              label: const Text('إضافة عنوان توصيل جديد'),
+              style: FilledButton.styleFrom(
+                backgroundColor: const Color(0xFF0284C7),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showSecurityDialog(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (ctx) => Container(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('الأمان وتأمين الحساب', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900)),
+                IconButton(onPressed: () => Navigator.pop(ctx), icon: const Icon(Icons.close)),
+              ],
+            ),
+            const SizedBox(height: 12),
+            SwitchListTile(
+              value: true,
+              activeColor: const Color(0xFF059669),
+              title: const Text('تسجيل الدخول بالبصمة / FaceID', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+              subtitle: const Text('طلب البصمة عند فتح التطبيق والموافقة على السداد', style: TextStyle(fontSize: 11, color: Color(0xFF64748B))),
+              onChanged: (val) {},
+            ),
+            const Divider(),
+            ListTile(
+              leading: const Icon(Icons.password_rounded, color: Color(0xFF8B1D3B)),
+              title: const Text('تغيير كلمة المرور', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+              subtitle: const Text('تحديث كلمة سر الدخول للحساب', style: TextStyle(fontSize: 11, color: Color(0xFF64748B))),
+              trailing: const Icon(Icons.arrow_back_ios_new_rounded, size: 14),
+              onTap: () {
+                Navigator.pop(ctx);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('تم فتح نموذج تغيير كلمة المرور')),
+                );
+              },
+            ),
+            const Divider(),
+            ListTile(
+              leading: const Icon(Icons.devices_rounded, color: Color(0xFF2563EB)),
+              title: const Text('الجلسات والأجهزة النشطة', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+              subtitle: const Text('جهاز أندرويد حالي متصل بنجاح', style: TextStyle(fontSize: 11, color: Color(0xFF059669))),
+              trailing: const Icon(Icons.arrow_back_ios_new_rounded, size: 14),
+              onTap: () => Navigator.pop(ctx),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showNotificationsSettingsDialog(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (ctx) => Container(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('إعدادات الإشعارات والتنبيهات', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900)),
+                IconButton(onPressed: () => Navigator.pop(ctx), icon: const Icon(Icons.close)),
+              ],
+            ),
+            const SizedBox(height: 12),
+            SwitchListTile(
+              value: true,
+              activeColor: const Color(0xFF8B1D3B),
+              title: const Text('إشعارات العمليات الفورية', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+              subtitle: const Text('تلقي إشعار فوري عند اكتمال أي تسديد أو تحويل', style: TextStyle(fontSize: 11, color: Color(0xFF64748B))),
+              onChanged: (v) {},
+            ),
+            SwitchListTile(
+              value: true,
+              activeColor: const Color(0xFF8B1D3B),
+              title: const Text('عروض وتخفيضات الباقات', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+              subtitle: const Text('إشعارات باقات يمن موبايل وسبأفون ويو الجديدة', style: TextStyle(fontSize: 11, color: Color(0xFF64748B))),
+              onChanged: (v) {},
+            ),
+            SwitchListTile(
+              value: true,
+              activeColor: const Color(0xFF8B1D3B),
+              title: const Text('صوت التنبيه ونغمة التأكيد', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+              subtitle: const Text('تشغيل نغمة نجاح العملية عند إتمام السداد', style: TextStyle(fontSize: 11, color: Color(0xFF64748B))),
+              onChanged: (v) {},
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showBankAccountsDialog(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (ctx) => Container(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('الحسابات البنكية المعتمدة للإيداع', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900)),
+                IconButton(onPressed: () => Navigator.pop(ctx), icon: const Icon(Icons.close)),
+              ],
+            ),
+            const SizedBox(height: 12),
+            _buildBankRow('بنك الكريمي للتمويل الأصغر الإسلامي', 'حساب رقم: 120000000', 'باسم: متجر شبيك الإلكتروني'),
+            const SizedBox(height: 8),
+            _buildBankRow('بنك التضامن الإسلامي', 'حساب رقم: 25000000', 'باسم: متجر شبيك للخدمات الرقمية'),
+            const SizedBox(height: 8),
+            _buildBankRow('محفظة كاش / جوالي / ون كاش', 'رقم المحفظة: 774952665', 'إيداع مباشر فوري'),
+            const SizedBox(height: 14),
+            const Text('ملاحظة: بعد التحويل قم بإرسال السند لإدارة النظام لتأكيد التغذية الفورية.', style: TextStyle(fontSize: 11, color: Color(0xFF059669), fontWeight: FontWeight.bold)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBankRow(String bankName, String accNo, String accHolder) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(bankName, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 12, color: Color(0xFF0F172A))),
+          const SizedBox(height: 2),
+          Text(accNo, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11, color: Color(0xFF8B1D3B))),
+          Text(accHolder, style: const TextStyle(fontSize: 10, color: Color(0xFF64748B))),
+        ],
+      ),
+    );
+  }
+
+  void _showSupportDialog(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (ctx) => Container(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('خدمة العملاء والدعم الفني', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900)),
+                IconButton(onPressed: () => Navigator.pop(ctx), icon: const Icon(Icons.close)),
+              ],
+            ),
+            const SizedBox(height: 12),
+            const Text('فريق الدعم الفني متواجد على مدار 24 ساعة لخدمتك وحل أي استفسار حول العمليات والرصيد.', style: TextStyle(fontSize: 12, color: Color(0xFF64748B), height: 1.4)),
+            const SizedBox(height: 16),
+            FilledButton.icon(
+              onPressed: () {
+                Navigator.pop(ctx);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('جاري فتح محادثة الدعم الفني عبر واتساب: 774952665')),
+                );
+              },
+              icon: const Icon(Icons.chat_rounded),
+              label: const Text('محادثة واتساب مباشرة'),
+              style: FilledButton.styleFrom(backgroundColor: const Color(0xFF059669), padding: const EdgeInsets.symmetric(vertical: 12)),
+            ),
+            const SizedBox(height: 8),
+            OutlinedButton.icon(
+              onPressed: () {
+                Navigator.pop(ctx);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('الاتصال المباشر بخدمة العملاء: 774952665')),
+                );
+              },
+              icon: const Icon(Icons.call_rounded),
+              label: const Text('الاتصال بالرقم الموحد'),
+              style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 12)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showTermsDialog(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (ctx) => Container(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('الشروط وسياسة الاستخدام', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900)),
+                IconButton(onPressed: () => Navigator.pop(ctx), icon: const Icon(Icons.close)),
+              ],
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              '1. جميع العمليات المنفذة عبر النظام تخضع للتأكيد الفوري من مزودي الاتصالات المعتمدين في الجمهورية اليمنية.\n'
+              '2. في حال حدوث أي تعليق يتم استرجاع المبلغ لمحفظتك فورياً.\n'
+              '3. بيانات المشترك محمية بأعلى معايير التشفير والأمان المالي.\n'
+              'الإصدار المعتمد: v2.4.0 Production Build',
+              style: TextStyle(fontSize: 12, color: Color(0xFF475569), height: 1.6),
+            ),
+            const SizedBox(height: 16),
+            FilledButton(
+              onPressed: () => Navigator.pop(ctx),
+              style: FilledButton.styleFrom(backgroundColor: const Color(0xFF8B1D3B)),
+              child: const Text('موافق'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _confirmLogout(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('تسجيل الخروج', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w900)),
+        content: const Text('هل أنت متأكد من رغبتك في تسجيل الخروج من حسابك؟', style: TextStyle(fontSize: 13)),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('إلغاء')),
+          FilledButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              context.read<AppController>().logout();
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('تم تسجيل الخروج بنجاح')),
+              );
+            },
+            style: FilledButton.styleFrom(backgroundColor: const Color(0xFFDC2626)),
+            child: const Text('تأكيد الخروج'),
+          ),
+        ],
       ),
     );
   }

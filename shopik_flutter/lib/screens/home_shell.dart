@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../core/app_controller.dart';
-import '../widgets/common.dart';
 import 'account_screen.dart';
 import 'payment_screen.dart';
 import 'reference_store.dart';
-import 'reference_account_clean.dart';
+import 'operations_screen.dart';
+import 'statement_screen.dart';
+import 'reports_screen.dart';
 
 class HomeShell extends StatefulWidget {
   const HomeShell({super.key});
@@ -15,24 +16,32 @@ class HomeShell extends StatefulWidget {
 }
 
 class _HomeShellState extends State<HomeShell> {
-  int _currentIndex = 0;
+  int _currentIndex = 1; // Default to 'حسابي' or 'المتجر'
 
   void _navigateToTab(int index) {
-    if (mounted && index >= 0 && index <= 3) {
+    if (mounted && index >= 0 && index < 6) {
       setState(() => _currentIndex = index);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final app = context.watch<AppController>();
-    final cartCount = app.cart.length;
-
     final pages = [
+      // 0: المتجر
       StoreView(onNavigateToCart: () {}),
-      const PaymentScreen(),
-      const OperationsView(),
+      // 1: حسابي
       AccountScreen(onNavigateToTab: _navigateToTab),
+      // 2: السداد
+      const PaymentScreen(),
+      // 3: العمليات (Matching Screenshot 3 & 4)
+      OperationsScreen(onBack: () => setState(() => _currentIndex = 1)),
+      // 4: كشف حساب (Matching Screenshot 1)
+      StatementScreen(onBack: () => setState(() => _currentIndex = 1)),
+      // 5: التقارير (Matching Screenshot 2)
+      ReportsScreen(
+        onBack: () => setState(() => _currentIndex = 1),
+        onNavigateTab: _navigateToTab,
+      ),
     ];
 
     return Scaffold(
@@ -45,39 +54,105 @@ class _HomeShellState extends State<HomeShell> {
           color: Colors.white,
           border: Border(top: BorderSide(color: Color(0xFFE2E8F0), width: 1)),
           boxShadow: [
-            BoxShadow(color: Color(0x080F172A), blurRadius: 10, offset: Offset(0, -2)),
+            BoxShadow(color: Color(0x0A0F172A), blurRadius: 10, offset: Offset(0, -2)),
           ],
         ),
-        child: BottomNavigationBar(
-          currentIndex: _currentIndex,
-          onTap: (idx) => setState(() => _currentIndex = idx),
-          type: BottomNavigationBarType.fixed,
-          backgroundColor: Colors.white,
-          selectedItemColor: const Color(0xFF8B1D3B),
-          unselectedItemColor: const Color(0xFF94A3B8),
-          selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w900, fontSize: 11),
-          unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 10.5),
-          items: [
-            const BottomNavigationBarItem(
-              icon: Icon(Icons.storefront_outlined),
-              activeIcon: Icon(Icons.storefront_rounded),
-              label: 'المتجر',
+        child: SafeArea(
+          top: false,
+          child: SizedBox(
+            height: 62,
+            child: Row(
+              children: [
+                // 1. المتجر
+                _buildNavItem(
+                  index: 0,
+                  label: 'المتجر',
+                  icon: Icons.storefront_outlined,
+                  activeIcon: Icons.storefront_rounded,
+                ),
+                // 2. حسابي
+                _buildNavItem(
+                  index: 1,
+                  label: 'حسابي',
+                  icon: Icons.home_outlined,
+                  activeIcon: Icons.home_rounded,
+                ),
+                // 3. السداد
+                _buildNavItem(
+                  index: 2,
+                  label: 'السداد',
+                  icon: Icons.credit_card_outlined,
+                  activeIcon: Icons.credit_card_rounded,
+                ),
+                // 4. العمليات
+                _buildNavItem(
+                  index: 3,
+                  label: 'العمليات',
+                  icon: Icons.history_rounded,
+                  activeIcon: Icons.history_rounded,
+                ),
+                // 5. كشف حساب
+                _buildNavItem(
+                  index: 4,
+                  label: 'كشف حساب',
+                  icon: Icons.receipt_long_outlined,
+                  activeIcon: Icons.receipt_long_rounded,
+                ),
+                // 6. التقارير
+                _buildNavItem(
+                  index: 5,
+                  label: 'التقارير',
+                  icon: Icons.bar_chart_rounded,
+                  activeIcon: Icons.bar_chart_rounded,
+                ),
+              ],
             ),
-            const BottomNavigationBarItem(
-              icon: Icon(Icons.bolt_outlined),
-              activeIcon: Icon(Icons.bolt_rounded),
-              label: 'السداد الفوري',
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNavItem({
+    required int index,
+    required String label,
+    required IconData icon,
+    required IconData activeIcon,
+  }) {
+    final isSelected = _currentIndex == index;
+    const activeColor = Color(0xFF8B1D3B);
+    const inactiveColor = Color(0xFF64748B);
+
+    return Expanded(
+      child: InkWell(
+        onTap: () => setState(() => _currentIndex = index),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            // Top Indicator Line (Matching the Screenshots)
+            Container(
+              height: 3,
+              width: double.infinity,
+              color: isSelected ? activeColor : Colors.transparent,
             ),
-            const BottomNavigationBarItem(
-              icon: Icon(Icons.receipt_long_outlined),
-              activeIcon: Icon(Icons.receipt_long_rounded),
-              label: 'العمليات',
+            const Spacer(),
+            Icon(
+              isSelected ? activeIcon : icon,
+              size: 22,
+              color: isSelected ? activeColor : inactiveColor,
             ),
-            const BottomNavigationBarItem(
-              icon: Icon(Icons.person_outline_rounded),
-              activeIcon: Icon(Icons.person_rounded),
-              label: 'حسابي',
+            const SizedBox(height: 3),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: isSelected ? FontWeight.w900 : FontWeight.bold,
+                color: isSelected ? activeColor : inactiveColor,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
+            const SizedBox(height: 6),
           ],
         ),
       ),

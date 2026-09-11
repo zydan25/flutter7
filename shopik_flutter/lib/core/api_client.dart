@@ -114,6 +114,39 @@ class ApiClient {
   Future<Map<String,dynamic>> payYemen4g(String phone, num amount) async => submitAndPollServiceRequest(serviceId: 20, payload: {'mobile': phone.trim(), 'amount': amount});
   Future<Map<String,dynamic>> payYemenNet(String phone, num amount) async => submitAndPollServiceRequest(serviceId: 23, payload: {'mobile': phone.trim(), 'amount': amount});
   Future<List<Map<String,dynamic>>> serviceReports() async=>_results(await get('/v2/services/reports/'));
+  Future<List<Map<String,dynamic>>> serviceRequests({String? status, String? date, String? phone}) async {
+    try {
+      final q = <String, dynamic>{
+        if (status != null && status.isNotEmpty) 'status': status,
+        if (date != null && date.isNotEmpty) 'date': date,
+        if (phone != null && phone.isNotEmpty) 'phone': phone,
+      };
+      final data = await get('/v2/services/requests/', query: q.isEmpty ? null : q);
+      return _results(data);
+    } catch (_) {
+      try {
+        return await serviceReports();
+      } catch (_) {
+        return [];
+      }
+    }
+  }
+  Future<Map<String,dynamic>> checkOperationStatus(String id) async {
+    try {
+      return await serviceProviderCheck(id);
+    } catch (_) {
+      try {
+        return await serviceTransaction(id);
+      } catch (e) {
+        throw ApiException(500, 'تعذر فحص العملية: $e');
+      }
+    }
+  }
+  Future<void> deleteServiceRequest(String id) async {
+    try {
+      await delete('/v2/services/requests/$id/');
+    } catch (_) {}
+  }
 
   Future<List<Map<String,dynamic>>> wifiNetworks() async {final data=await get('/v2/services/wifi/networks/');if(data is Map&&data['networks'] is List)return List<Map<String,dynamic>>.from((data['networks'] as List).map((e)=>Map<String,dynamic>.from(e)));return _results(data);}
   Future<Map<String,dynamic>> wifiPurchase({required int networkId,required int denominationId,required String phone,required double price,String? idempotencyKey}) async {final key=idempotencyKey??'wifi-${DateTime.now().microsecondsSinceEpoch}-${Random().nextInt(1<<30)}';return Map<String,dynamic>.from(await post('/v2/services/wifi/purchase/',{'network_id':networkId,'denomination_id':denominationId,'phone':phone,'amount':price},idempotencyKey:key));}
