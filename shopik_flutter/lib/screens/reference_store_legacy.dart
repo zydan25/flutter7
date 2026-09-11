@@ -89,7 +89,7 @@ class _ProductDetailViewState extends State<ProductDetailView> {
     }
 
     final isDiscounted = salePrice != null && salePrice < price;
-    final currentPrice = salePrice ?? price;
+    final double currentPrice = (salePrice ?? price).toDouble();
     final discountPercent = isDiscounted && price > 0 ? (((price - salePrice) / price) * 100).round() : 0;
 
     return Scaffold(
@@ -1691,7 +1691,12 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     }
 
     final d = _orderData ?? {};
-    final items = d['items'] is List ? (d['items'] as List).whereType<Map>().toList() : [];
+    final List<Map<dynamic, dynamic>> items = d['items'] is List
+        ? (d['items'] as List)
+            .whereType<Map>()
+            .map<Map<dynamic, dynamic>>((item) => Map<dynamic, dynamic>.from(item))
+            .toList()
+        : <Map<dynamic, dynamic>>[];
     final status = '${d['status'] ?? 'pending'}';
     final currency = '${d['currency'] ?? 'YER'}';
     final isPending = status == 'pending' || status == 'placed' || status == 'received' || status == 'new' || status == 'under_review';
